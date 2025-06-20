@@ -1,5 +1,5 @@
-import { Todo } from "@/domain/entities/todo";
-import { TodoService } from "../services/todoService";
+import { Todo } from "@/domain/entities/todo.js";
+import { TodoService } from "../services/todoService.js";
 
 
 export const createTodo = async (todoService: TodoService, data: Partial<Todo>): Promise<Todo> => {

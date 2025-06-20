@@ -1,7 +1,8 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { TodoService } from '@/application/services/todoService';
-import { JsonPlaceholderTodoRepository } from '@/infrastructure/repositories/jsonPlaceholderTodoRepository';
+import { JsonPlaceholderTodoRepository } from './infrastructure/repositories/jsonPlaceholderTodoRepository.js';
+import { TodoService } from './application/services/todoService.js';
+import { z } from "zod";
 
 const todoRepository = new JsonPlaceholderTodoRepository();
 const todoService = new TodoService(todoRepository);
@@ -10,11 +11,6 @@ const server = new McpServer(
     {
         name: 'mcp-todo-server',
         version: '1.0.0',
-    },
-    {
-        capabilities: {
-            tools: {},
-        },
     }
 );
 
@@ -29,66 +25,75 @@ server.tool('get_todos', 'Get all todos', {
     };
 });
 
-server.tool('get_todo_by_id', 'Get a todo by ID', {
-    type: 'object',
-    properties: {
-        id: { type: 'string', description: 'Todo ID' }
+server.registerTool('get_todo_by_id',
+    {
+        title: "Get Todo by ID",
+        description: "Retrieve a todo item by its ID",
+        inputSchema: { id: z.string() }
     },
-    required: ['id']
-}, async (args) => {
-    const todo = await todoService.getTodoById(args.id);
-    return {
-        content: [{ type: 'text', text: todo ? JSON.stringify(todo, null, 2) : 'Todo not found' }]
-    };
-});
+    async ({ id }) => {
+        // Check if ID is provided
+        if (!id) {
+            return {
+                content: [{ type: 'text', text: 'Error: Todo ID is required' }],
+                isError: true
+            };
+        }
 
-server.tool('create_todo', 'Create a new todo', {
-    type: 'object',
-    properties: {
-        title: { type: 'string', description: 'Todo title' },
-        completed: { type: 'boolean', description: 'Todo completion status', default: false }
-    },
-    required: ['title']
-}, async (args) => {
-    const newTodo = await todoService.createTodo({
-        title: args.title,
-        completed: args.completed || false
+        const todo = await todoService.getTodoById(id);
+        return {
+            content: [{ type: 'text', text: todo ? JSON.stringify(todo, null, 2) : 'Todo not found' }]
+        };
     });
-    return {
-        content: [{ type: 'text', text: JSON.stringify(newTodo, null, 2) }]
-    };
-});
 
-server.tool('update_todo', 'Update an existing todo', {
-    type: 'object',
-    properties: {
-        id: { type: 'string', description: 'Todo ID' },
-        title: { type: 'string', description: 'Todo title' },
-        completed: { type: 'boolean', description: 'Todo completion status' }
+server.registerTool('create_todo',
+    {
+        title: "Create Todo",
+        description: "Create a new todo item",
+        inputSchema: { title: z.string(), completed: z.boolean().optional() }
     },
-    required: ['id']
-}, async (args) => {
-    const updatedTodo = await todoService.updateTodo(args.id, {
-        title: args.title,
-        completed: args.completed
+    async (args) => {
+        const newTodo = await todoService.createTodo({
+            title: args.title,
+            completed: args.completed || false
+        });
+        return {
+            content: [{ type: 'text', text: JSON.stringify(newTodo, null, 2) }]
+        };
     });
-    return {
-        content: [{ type: 'text', text: updatedTodo ? JSON.stringify(updatedTodo, null, 2) : 'Todo not found' }]
-    };
-});
 
-server.tool('delete_todo', 'Delete a todo', {
-    type: 'object',
-    properties: {
-        id: { type: 'string', description: 'Todo ID' }
-    },
-    required: ['id']
-}, async (args) => {
-    const result = await todoService.deleteTodo(args.id);
-    return {
-        content: [{ type: 'text', text: result ? 'Todo deleted successfully' : 'Failed to delete todo' }]
-    };
-});
+server.registerTool('update_todo',
+    {
+        title: "Update Todo",
+        description: "Update an existing todo item",
+        inputSchema: {
+            id: z.string(),
+            title: z.string().optional(),
+            completed: z.boolean().optional()
+        },
+    }, async (args) => {
+        const updatedTodo = await todoService.updateTodo(args.id, {
+            title: args.title,
+            completed: args.completed
+        });
+        return {
+            content: [{ type: 'text', text: updatedTodo ? JSON.stringify(updatedTodo, null, 2) : 'Todo not found' }]
+        };
+    });
+
+server.registerTool('delete_todo',
+    {
+        title: "Delete Todo",
+        description: "Delete a todo item by its ID",
+        inputSchema: {
+            id: z.string()
+        },
+    }, async (args) => {
+        const result = await todoService.deleteTodo(args.id);
+        return {
+            content: [{ type: 'text', text: result ? 'Todo deleted successfully' : 'Failed to delete todo' }]
+        };
+    });
 
 // Start the server
 async function main() {

@@ -1,6 +1,5 @@
-import { TodoService } from '@/application/services/todoService';
-import { Todo } from '@/domain/entities/todo';
-// import { MCPServer } from '@modelcontextprotocol/sdk';
+import { TodoService } from "@/application/services/todoService.js";
+import { Todo } from "@/domain/entities/todo.js";
 
 
 export class TodoHandlers {

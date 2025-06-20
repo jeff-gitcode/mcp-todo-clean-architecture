@@ -1,6 +1,5 @@
-import { Todo } from "@/domain/entities/todo";
-import { TodoRepository } from "@/domain/repositories/todoRepository";
-
+import { Todo } from "@/domain/entities/todo.js";
+import { TodoRepository } from "@/domain/repositories/todoRepository.js";
 
 export class JsonPlaceholderTodoRepository implements TodoRepository {
     private apiUrl: string = 'https://jsonplaceholder.typicode.com/todos';
