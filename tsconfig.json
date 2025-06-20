@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./build",
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": [
+        "*"
+      ],
+      "@/application/*": [
+        "application/*"
+      ],
+      "@/domain/*": [
+        "domain/*"
+      ],
+      "@/infrastructure/*": [
+        "infrastructure/*"
+      ],
+      "@/presentation/*": [
+        "presentation/*"
+      ],
+      "@/config/*": [
+        "config/*"
+      ]
+    }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tests"
+  ]
+}

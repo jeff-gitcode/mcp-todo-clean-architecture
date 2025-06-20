@@ -1,0 +1,45 @@
+{
+  "name": "mcp-todo-server",
+  "version": "1.0.0",
+  "description": "A clean architecture demo for a Todo application using MCPServer and JSON Placeholder.",
+  "main": "src/index.ts",
+  "type": "module",
+  "bin": {
+    "todo": "./build/index.js"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "test": "jest",
+    "build": "tsc"
+  },
+  "files": [
+    "build"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.2",
+    "@types/node": "^16.11.7",
+    "jest": "^27.0.6",
+    "supertest": "^7.1.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "keywords": [
+    "mcp",
+    "todo",
+    "clean-architecture",
+    "typescript"
+  ],
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
