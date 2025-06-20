@@ -1,4 +1,4 @@
-# mcp-todo-server/mcp-todo-server/README.md
+# mcp-todo-server/README.md
 
 # MCP Todo Server
 
