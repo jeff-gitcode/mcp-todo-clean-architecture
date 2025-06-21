@@ -1,5 +1,5 @@
-import { JsonPlaceholderTodoRepository } from '../../../../src/infrastructure/repositories/jsonPlaceholderTodoRepository';
-import { Todo } from '../../../../src/domain/entities/todo';
+import { JsonPlaceholderTodoRepository } from '@/infrastructure/repositories/jsonPlaceholderTodoRepository';
+import { Todo } from '@/domain/entities/todo';
 
 describe('JsonPlaceholderTodoRepository', () => {
     let repository: JsonPlaceholderTodoRepository;

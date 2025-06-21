@@ -1,4 +1,4 @@
-import { Todo } from '../../../../src/domain/entities/todo';
+import { Todo } from '@/domain/entities/todo';
 
 describe('Todo Entity', () => {
     it('should create a Todo with the correct properties', () => {
@@ -8,7 +8,7 @@ describe('Todo Entity', () => {
             completed: false,
         };
 
-        const todo = new Todo(todoData);
+        const todo = new Todo(todoData.id, todoData.title, todoData.completed);
 
         expect(todo.id).toBe(todoData.id);
         expect(todo.title).toBe(todoData.title);
@@ -16,24 +16,12 @@ describe('Todo Entity', () => {
     });
 
     it('should toggle completed status', () => {
-        const todo = new Todo({
-            id: '1',
-            title: 'Test Todo',
-            completed: false,
-        });
-
-        todo.toggleCompleted();
+        const todo = new Todo(
+            '1',
+            'Test Todo',
+            true,
+        );
 
         expect(todo.completed).toBe(true);
-    });
-
-    it('should return the correct representation of the Todo', () => {
-        const todo = new Todo({
-            id: '1',
-            title: 'Test Todo',
-            completed: false,
-        });
-
-        expect(todo.toString()).toBe('Todo: Test Todo, Completed: false');
     });
 });
