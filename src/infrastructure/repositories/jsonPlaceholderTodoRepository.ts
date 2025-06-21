@@ -1,8 +1,8 @@
-import { Todo } from "@/domain/entities/todo.js";
-import { TodoRepository } from "@/domain/repositories/todoRepository.js";
+import { Todo } from "@/domain/entities/todo";
+import { TodoRepository } from "@/domain/repositories/todoRepository";
 
 export class JsonPlaceholderTodoRepository implements TodoRepository {
-    private apiUrl: string = 'https://jsonplaceholder.typicode.com/todos';
+    private readonly apiUrl: string = 'https://jsonplaceholder.typicode.com/todos';
 
     public async findAll(): Promise<Todo[]> {
         const response = await fetch(this.apiUrl);
