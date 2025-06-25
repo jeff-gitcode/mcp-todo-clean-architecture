@@ -1,3 +1,5 @@
+import 'module-alias/register';
+
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { JsonPlaceholderTodoRepository } from './infrastructure/repositories/jsonPlaceholderTodoRepository.js';
