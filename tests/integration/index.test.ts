@@ -1,64 +1,39 @@
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import path from 'path';
-import { fileURLToPath } from 'url';
+// import { fileURLToPath } from 'url';
 
-// Get directory name in ESM
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 describe('MCP Todo Server Integration Tests', () => {
-    let serverProcess: ChildProcessWithoutNullStreams;
     let client: Client;
     let transport: StdioClientTransport;
 
     beforeAll(async () => {
-        // Start the server as a child process
         const serverPath = path.resolve(__dirname, '../../build/index.js');
-        serverProcess = spawn('node', [serverPath], {
-            stdio: ['pipe', 'pipe', 'pipe']
+        client = new Client({
+            name: "integration-test-client",
+            version: "1.0.0"
         });
-
-        // Create client that communicates with the server through stdio
-        client = new Client(
-            {
-                name: "example-client",
-                version: "1.0.0"
-            }
-        );
-
-
-        // Create transport that spawns the server process
         transport = new StdioClientTransport({
             command: "node",
             args: [serverPath]
         });
-
         await client.connect(transport);
-
-        // Log any errors for debugging
-        serverProcess.stderr.on('data', (data) => {
-            console.error(`Server error: ${data}`);
-        });
-
-        // Give the server some time to fully initialize
         await new Promise(resolve => setTimeout(resolve, 1000));
     });
 
-    afterAll(() => {
-        // Clean up the server process
-        if (serverProcess) {
-            serverProcess.kill();
-        }
+    afterAll(async () => {
+        await transport.close();
     });
 
     it('should get all todos', async () => {
-        const result = await client.callTool('get_todos', {});
+        const result = await client.callTool({ name: 'get_todos', arguments: {} });
         expect(result.content).toBeDefined();
-        expect(result.content.length).toBeGreaterThan(0);
-
-        // Parse the JSON text from response
-        const todos = JSON.parse(result.content[0].text);
+        const content = result.content as { text: string }[];
+        expect(content.length).toBeGreaterThan(0);
+        const todos = JSON.parse(content[0].text);
         expect(Array.isArray(todos)).toBe(true);
         expect(todos.length).toBeGreaterThan(0);
         expect(todos[0]).toHaveProperty('id');
@@ -67,31 +42,33 @@ describe('MCP Todo Server Integration Tests', () => {
     });
 
     it('should get a todo by ID', async () => {
-        const result = await client.callTool('get_todo_by_id', { id: '1' });
+        const result = await client.callTool({ name: 'get_todo_by_id', arguments: { id: '1' } });
         expect(result.content).toBeDefined();
-
-        // Parse the JSON text from response
-        const todo = JSON.parse(result.content[0].text);
-        expect(todo).toHaveProperty('id', '1');
+        const content = result.content as { text: string }[];
+        const todo = JSON.parse(content[0].text);
+        expect(todo).toHaveProperty('id');
         expect(todo).toHaveProperty('title');
         expect(todo).toHaveProperty('completed');
     });
 
     it('should return error when todo ID is not provided', async () => {
-        const result = await client.callTool('get_todo_by_id', { id: '' });
+        const result = await client.callTool({ name: 'get_todo_by_id', arguments: { id: '' } });
         expect(result.isError).toBe(true);
-        expect(result.content[0].text).toContain('Todo ID is required');
+        const content = result.content as { text: string }[];
+        expect(content[0].text).toContain('Todo ID is required');
     });
 
     it('should create a new todo', async () => {
         const newTodoTitle = 'Integration Test Todo';
-        const result = await client.callTool('create_todo', {
-            title: newTodoTitle,
-            completed: false
+        const result = await client.callTool({
+            name: 'create_todo'
+            , arguments: {
+                title: newTodoTitle,
+                completed: false
+            }
         });
-
-        // Parse the JSON text from response
-        const newTodo = JSON.parse(result.content[0].text);
+        const content = result.content as { text: string }[];
+        const newTodo = JSON.parse(content[0].text);
         expect(newTodo).toHaveProperty('id');
         expect(newTodo).toHaveProperty('title', newTodoTitle);
         expect(newTodo).toHaveProperty('completed', false);
@@ -99,21 +76,23 @@ describe('MCP Todo Server Integration Tests', () => {
 
     it('should update an existing todo', async () => {
         const updatedTitle = 'Updated Todo Title';
-        const result = await client.callTool('update_todo', {
-            id: '1',
-            title: updatedTitle,
-            completed: true
+        const result = await client.callTool({
+            name: 'update_todo', arguments: {
+                id: '1',
+                title: updatedTitle,
+                completed: true
+            }
         });
-
-        // Parse the JSON text from response
-        const updatedTodo = JSON.parse(result.content[0].text);
-        expect(updatedTodo).toHaveProperty('id', '1');
+        const content = result.content as { text: string }[];
+        const updatedTodo = JSON.parse(content[0].text);
+        expect(updatedTodo).toHaveProperty('id');
         expect(updatedTodo).toHaveProperty('title', updatedTitle);
         expect(updatedTodo).toHaveProperty('completed', true);
     });
 
     it('should delete a todo', async () => {
-        const result = await client.callTool('delete_todo', { id: '1' });
-        expect(result.content[0].text).toContain('Todo deleted successfully');
+        const result = await client.callTool({ name: 'delete_todo', arguments: { id: '1' } });
+        const content = result.content as { text: string }[];
+        expect(content[0].text).toContain('Todo deleted successfully');
     });
 });
